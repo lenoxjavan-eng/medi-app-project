@@ -1,22 +1,28 @@
+import { NavLink } from 'react-router-dom'
+
 function Navbar({ userName = 'Patient', onLogout }) {
   const navLinks = [
-    { label: 'Home', href: '#home' },
-    { label: 'Department', href: '#departments' },
-    { label: 'Book Appointment', href: '#book-appointment' },
-    { label: 'Contact', href: '#contact' },
+    { label: 'Home', path: '/' },
+    { label: 'Department', path: '/departments' },
+    { label: 'Book Appointment', path: '/book-appointment' },
+    { label: 'Contact', path: '/contact' },
   ]
 
   return (
     <nav className="navbar" aria-label="Main navigation">
-      <a className="navbar-brand" href="#home">
+      <NavLink className="navbar-brand" to="/">
         MediCare
-      </a>
+      </NavLink>
 
       <div className="navbar-links">
         {navLinks.map((link) => (
-          <a key={link.href} href={link.href}>
+          <NavLink
+            className={({ isActive }) => (isActive ? 'navbar-link-active' : '')}
+            key={link.path}
+            to={link.path}
+          >
             {link.label}
-          </a>
+          </NavLink>
         ))}
       </div>
 

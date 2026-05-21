@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import AppointmentBooking from '../components/AppointmentBooking'
+import ConsultationServices from '../components/ConsultationServices'
 import SymptomsForm from '../components/SymptomsForm'
 
 function BookAppointment({
@@ -15,6 +17,26 @@ function BookAppointment({
   onStartOver,
   onSubmitSymptoms,
 }) {
+  const [draftAppointment, setDraftAppointment] = useState({
+    ...appointment,
+    department: selectedService.name,
+  })
+
+  function handleSelectService(service) {
+    setDraftAppointment((current) => ({
+      ...current,
+      department: service.name,
+    }))
+    onSelectService(service)
+  }
+
+  function handleBookAppointment() {
+    onBookAppointment({
+      ...draftAppointment,
+      department: selectedService.name,
+    })
+  }
+
   if (page === 'symptoms') {
     return (
       <SymptomsForm
@@ -28,15 +50,22 @@ function BookAppointment({
   }
 
   return (
-    <div id="book-appointment">
-      <AppointmentBooking
-        appointment={appointment}
+    <div className="booking-stack" id="book-appointment">
+      <ConsultationServices
+        payer={draftAppointment}
         paymentReceipt={paymentReceipt}
         selectedService={selectedService}
         services={services}
-        onBookAppointment={onBookAppointment}
         onPaymentSuccess={onPaymentSuccess}
-        onSelectService={onSelectService}
+        onSelectService={handleSelectService}
+      />
+
+      <AppointmentBooking
+        appointment={draftAppointment}
+        paymentReceipt={paymentReceipt}
+        selectedService={selectedService}
+        onAppointmentChange={setDraftAppointment}
+        onBookAppointment={handleBookAppointment}
       />
     </div>
   )

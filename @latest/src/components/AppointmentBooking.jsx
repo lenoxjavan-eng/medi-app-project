@@ -1,35 +1,20 @@
 import { useState } from 'react'
-import ConsultationServices from './ConsultationServices'
 
 function AppointmentBooking({
   appointment,
-  services,
   selectedService,
   paymentReceipt,
+  onAppointmentChange,
   onBookAppointment,
-  onPaymentSuccess,
-  onSelectService,
 }) {
-  const [formData, setFormData] = useState({
-    ...appointment,
-    department: selectedService.name,
-  })
   const [error, setError] = useState('')
 
   function handleChange(event) {
     const { name, value } = event.target
-    setFormData((current) => ({
-      ...current,
+    onAppointmentChange({
+      ...appointment,
       [name]: value,
-    }))
-  }
-
-  function handleSelectService(service) {
-    setFormData((current) => ({
-      ...current,
-      department: service.name,
-    }))
-    onSelectService(service)
+    })
   }
 
   function handleSubmit(event) {
@@ -43,7 +28,9 @@ function AppointmentBooking({
       'appointmentDate',
       'appointmentTime',
     ]
-    const hasMissingField = requiredFields.some((field) => !formData[field].trim())
+    const hasMissingField = requiredFields.some(
+      (field) => !appointment[field]?.trim(),
+    )
 
     if (hasMissingField) {
       setError('Please complete all required appointment details.')
@@ -56,42 +43,29 @@ function AppointmentBooking({
     }
 
     setError('')
-    onBookAppointment({
-      ...formData,
-      department: selectedService.name,
-    })
+    onBookAppointment()
   }
 
   return (
-    <div className="booking-stack">
-      <ConsultationServices
-        payer={formData}
-        paymentReceipt={paymentReceipt}
-        selectedService={selectedService}
-        services={services}
-        onPaymentSuccess={onPaymentSuccess}
-        onSelectService={handleSelectService}
-      />
+    <div className="portal-grid">
+      <article className="intro-panel">
+        <p className="eyebrow">Book care faster</p>
+        <h2>Choose your visit details, then tell the care team what you feel.</h2>
+        <p>
+          Patients first reserve a time with the hospital. After booking, they
+          continue to a separate symptoms page so clinicians can prepare before
+          the visit.
+        </p>
+      </article>
 
-      <div className="portal-grid">
-        <article className="intro-panel">
-          <p className="eyebrow">Book care faster</p>
-          <h2>Choose your visit details, then tell the care team what you feel.</h2>
-          <p>
-            Patients first reserve a time with the hospital. After booking, they
-            continue to a separate symptoms page so clinicians can prepare before
-            the visit.
-          </p>
-        </article>
-
-        <form className="form-panel" onSubmit={handleSubmit}>
+      <form className="form-panel" onSubmit={handleSubmit}>
         <div className="form-row">
           <label htmlFor="fullName">Full name</label>
           <input
             id="fullName"
             name="fullName"
             type="text"
-            value={formData.fullName}
+            value={appointment.fullName}
             onChange={handleChange}
             placeholder="Jane Doe"
           />
@@ -104,7 +78,7 @@ function AppointmentBooking({
               id="email"
               name="email"
               type="email"
-              value={formData.email}
+              value={appointment.email}
               onChange={handleChange}
               placeholder="jane@example.com"
             />
@@ -116,7 +90,7 @@ function AppointmentBooking({
               id="phone"
               name="phone"
               type="tel"
-              value={formData.phone}
+              value={appointment.phone}
               onChange={handleChange}
               placeholder="+254 700 000 000"
             />
@@ -141,7 +115,7 @@ function AppointmentBooking({
               id="doctor"
               name="doctor"
               type="text"
-              value={formData.doctor}
+              value={appointment.doctor}
               onChange={handleChange}
               placeholder="Optional"
             />
@@ -155,7 +129,7 @@ function AppointmentBooking({
               id="appointmentDate"
               name="appointmentDate"
               type="date"
-              value={formData.appointmentDate}
+              value={appointment.appointmentDate}
               onChange={handleChange}
             />
           </div>
@@ -166,7 +140,7 @@ function AppointmentBooking({
               id="appointmentTime"
               name="appointmentTime"
               type="time"
-              value={formData.appointmentTime}
+              value={appointment.appointmentTime}
               onChange={handleChange}
             />
           </div>
@@ -177,8 +151,7 @@ function AppointmentBooking({
         <button className="primary-button" type="submit">
           Book appointment
         </button>
-        </form>
-      </div>
+      </form>
     </div>
   )
 }
