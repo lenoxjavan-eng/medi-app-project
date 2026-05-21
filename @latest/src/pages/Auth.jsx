@@ -1,4 +1,10 @@
 import { useState } from 'react'
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+} from 'firebase/auth'
+import { auth, googleProvider } from '../../firebase.js'
 
 function Auth({ onLogin }) {
   const [authMode, setAuthMode] = useState('login')
@@ -19,7 +25,7 @@ function Auth({ onLogin }) {
     }))
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
 
     if (isSignUp && !credentials.fullName.trim()) {
@@ -33,12 +39,29 @@ function Auth({ onLogin }) {
     }
 
     setError('')
-    onLogin(credentials.email)
+
+    try {
+      const authResult = isSignUp
+        ? await createUserWithEmailAndPassword(auth, credentials.email, credentials.password)
+        : await signInWithEmailAndPassword(auth, credentials.email, credentials.password)
+
+      const userEmail = authResult.user.email || credentials.email
+      onLogin(userEmail)
+    } catch (firebaseError) {
+      setError(firebaseError.message || 'Unable to sign in. Please try again.')
+    }
   }
 
-  function handleGoogleLogin() {
+  async function handleGoogleLogin() {
     setError('')
-    onLogin('google.patient@medicarehospital.com')
+
+    try {
+      const result = await signInWithPopup(auth, googleProvider)
+      const userEmail = result.user.email
+      onLogin(userEmail)
+    } catch (firebaseError) {
+      setError(firebaseError.message || 'Google sign-in failed. Please try again.')
+    }
   }
 
   return (
